@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Grafik</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  </head>
+  <body>
+    <h1>Grafik Data Sensor</h1>
+    <canvas id="dataChart" width="400" height="200"></canvas>
+
+    <script>
+      fetch("get_data.php")
+        .then((response) => response.json())
+        .then((data) => {
+          // Batasi data yang ditampilkan (contoh: 20 data terakhir)
+          const recentData = data.slice(-20);
+
+          const labels = recentData.map((row) =>
+            moment(row.timestamp * 1000).format("HH:mm:ss")
+          );
+          const tempData = recentData.map((row) => row.temperature);
+          const humidData = recentData.map((row) => row.humidity);
+
+          new Chart(document.getElementById("dataChart"), {
+            type: "line",
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  label: "Temperature (°C)",
+                  data: tempData,
+                  borderColor: "red",
+                  backgroundColor: "rgba(255, 99, 132, 0.2)",
+                  fill: true,
+                  tension: 0.4,
+                },
+                {
+                  label: "Humidity (%)",
+                  data: humidData,
+                  borderColor: "blue",
+                  backgroundColor: "rgba(54, 162, 235, 0.2)",
+                  fill: true,
+                  tension: 0.4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              scales: {
+                x: {
+                  type: "time",
+                  time: {
+                    unit: "second",
+                    stepSize: 4,
+                  },
+                  title: {
+                    display: true,
+                    text: "Time (hh:mm:ss)",
+                  },
+                },
+                y: {
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: "Value",
+                  },
+                },
+              },
+              plugins: {
+                legend: {
+                  position: "top",
+                },
+              },
+            },
+          });
+        });
+    </script>
+  </body>
+</html>
